@@ -70,7 +70,7 @@ void loop() {
   leds[position].blue += brightness_blue;
   }
   
-  for (int position = WaveB_start; (position < (WaveB_start + WAVESIZE)) and (position < NUM_LEDS); position++) {
+  for (int position = WaveB_start; (position > (WaveB_start - WAVESIZE)) and (position < NUM_LEDS) and (position >= 0); position--) {
   float s = sin(float((position - WaveB_start)*PI)/(float)WAVESIZE);
   brightness_green = 100 * pow(s,2);
   brightness_blue = 50 * pow(s,12);
