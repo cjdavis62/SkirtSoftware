@@ -32,18 +32,18 @@
 #include <power_mgt.h>
 
 
-#define NUM_LEDS 300
+#define NUM_LEDS 116 //29 leds per strip * 4 strips
 #define DATA_PIN 9
 
 #define COLORA CRGB::Fuchsia
 #define COLORB CRGB::DarkGoldenrod
 #define COLOROFF CRGB::Black
 #define WAVESIZE 10
-#define NUM_WAVES 6
+#define NUM_WAVES 4
 
 #define DECAYRATE 0.2
 
-double speedA = 0.03; // the speed for which the lights move
+double speedA = 0.029; // the speed for which the lights move
 
 CRGB leds[NUM_LEDS]; // array for each of the LEDs
 int brightness_red; // brightness of each color
@@ -79,10 +79,18 @@ void loop() {
       float s_leftalign = exp(-1 * DECAYRATE * shift);
       brightness_blue = 75 * pow(s_leftalign,2);
       brightness_green = 75 * s_leftalign;
-      leds[position].blue += brightness_blue;
-      leds[position].green += brightness_green;
+      if (wave_number%2 == 0)
+      {
+        leds[position].blue += brightness_blue;
+        leds[position].green += brightness_green;
+      }
+      else
+      {
+        leds[position].red += brightness_blue;
+        leds[position].blue += brightness_green;
       }
     }
+  }
   }
 
   // turn on the LEDs

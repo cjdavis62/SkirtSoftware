@@ -47,7 +47,6 @@ int brightness_green;
 void setup() {
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // Initialize the LEDS 
   //StartDark(*leds, NUM_LEDS); // start all the LEDS as dark
-  Serial.begin(9600);
 }
 void loop() {
 
@@ -72,10 +71,12 @@ void loop() {
   
   for (int position = WaveB_start; (position > (WaveB_start - WAVESIZE)) and (position < NUM_LEDS) and (position >= 0); position--) {
   float s = sin(float((position - WaveB_start)*PI)/(float)WAVESIZE);
-  brightness_green = 100 * pow(s,2);
-  brightness_blue = 50 * pow(s,12);
+  brightness_green = 100 * pow(s,4);
+  brightness_blue = 50 * pow(s,12) + 25 * pow(cos(((float)time * PI) / 5000.0),2) * pow(s,2);
+  brightness_red = 100 * pow(sin(((float)time * PI) / 5000.0),2) * pow(s,2);
   leds[position].green += brightness_green;
   leds[position].blue += brightness_blue;
+  leds[position].red += brightness_red;
   }
 
   // turn on the LEDs
