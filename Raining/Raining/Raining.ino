@@ -39,18 +39,29 @@
 #define COLORB CRGB::DarkGoldenrod
 #define COLOROFF CRGB::Black
 #define WAVESIZE 10
-#define NUM_WAVES 4
+#define NUM_WAVES 6
 
 #define DECAYRATE 0.2
 
-double speedA = 0.029; // the speed for which the lights move
+double speedA = 0.029*1.5; // the speed for which the lights move
 
 CRGB leds[NUM_LEDS]; // array for each of the LEDs
-int brightness_red; // brightness of each color
-int brightness_blue;
-int brightness_green;
+int brightness_a; // brightness of each color
+int brightness_b;
+int brightness_c;
+int index[NUM_LEDS];
+
 
 void setup() {
+
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+  if (i >= 0 and i < 29) index[i] = -i + (NUM_LEDS/2 - 1);
+  else if (i >= 29 and i < 58) index[i] = -i + (NUM_LEDS/2 - 1);
+  else if (i >= 58 and i < 87) index[i] = i;
+  else if (i >= 87 and i < 116) index[i] = i;
+  }
+  
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS); // Initialize the LEDS 
   //StartDark(*leds, NUM_LEDS); // start all the LEDS as dark  
 }
@@ -58,8 +69,8 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  int WaveStart[NUM_LEDS] = {0};
-  int time_between_waves = (int)((NUM_LEDS / speedA) / NUM_WAVES);
+  int WaveStart[NUM_WAVES] = {0};
+  int time_between_waves = (int)((NUM_LEDS / speedA) / NUM_WAVES) * 0.7;
 
   unsigned long time = millis();
 
@@ -72,22 +83,32 @@ void loop() {
   
   if (time > wave_number * time_between_waves) {
   
-    WaveStart[wave_number] = int(floor((time - wave_number * time_between_waves) * speedA)) % NUM_LEDS; 
+    WaveStart[wave_number] = (int(floor((time - wave_number * time_between_waves) * speedA)) % NUM_LEDS) - WAVESIZE; 
  
-    for (int position = WaveStart[wave_number]; (position < (WaveStart[wave_number] + WAVESIZE)) and (position < NUM_LEDS); position++) {
+    for (int position = WaveStart[wave_number]; (position < (WaveStart[wave_number] + WAVESIZE)) and (position < NUM_LEDS/2); position++) {
+
+      if (position >= 0) {
       int shift = (WAVESIZE + WaveStart[wave_number] - position) - 1;
       float s_leftalign = exp(-1 * DECAYRATE * shift);
-      brightness_blue = 75 * pow(s_leftalign,2);
-      brightness_green = 75 * s_leftalign;
-      if (wave_number%2 == 0)
+      brightness_a = 75 * pow(s_leftalign,2);
+      brightness_b = 75 * s_leftalign;
+      brightness_c = 25 * pow(s_leftalign,4);
+
+      if (position >= 0 and position < NUM_LEDS/4)
       {
-        leds[position].blue += brightness_blue;
-        leds[position].green += brightness_green;
+        leds[index[position]].blue += brightness_a * (wave_number + 2) * (1.0/double(NUM_WAVES+1));
+        leds[index[position]].green += brightness_b;
+        leds[index[position+NUM_LEDS/2]].blue += brightness_a * (wave_number + 2) * (1.0/double(NUM_WAVES+1));
+        leds[index[position+NUM_LEDS/2]].green += brightness_b;
+
       }
-      else
+      else if (position >= NUM_LEDS/4 and position < NUM_LEDS/2)
       {
-        leds[position].red += brightness_blue;
-        leds[position].blue += brightness_green;
+        leds[index[position]].red += brightness_a;
+        leds[index[position]].blue += brightness_b;
+        leds[index[position+NUM_LEDS/2]].red += brightness_a;
+        leds[index[position+NUM_LEDS/2]].blue += brightness_b;
+      }
       }
     }
   }
